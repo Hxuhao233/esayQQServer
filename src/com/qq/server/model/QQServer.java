@@ -17,16 +17,17 @@ public class QQServer {
 	public QQServer() throws IOException, ClassNotFoundException{
 		ServerSocket serverSocket  = new ServerSocket(9999);
 		boolean bool = true;
-		while(bool){
+		while(true){
 			Socket socket  = serverSocket.accept();
 			/*BufferedReader bufferedReader = new BufferedReader(
 					new InputStreamReader(socket.getInputStream()));
 			String info = bufferedReader.readLine();
 			*/
-			if(socket.getInputStream().read()!=-1){
+			if(/*socket.getInputStream().read()!=-1*/true){
 				ObjectInputStream objectInputStream = new ObjectInputStream(
 						socket.getInputStream());
 				User user = (User)objectInputStream.readObject();
+				//objectInputStream.close();
 				System.out.println(user.getQQNumber());
 				System.out.println(user.getPassword());
 				ObjectOutputStream objectOutputStream = new ObjectOutputStream(
@@ -38,17 +39,19 @@ public class QQServer {
 					objectOutputStream.writeObject(message);
 					
 					//start a thread for a client request and add it into the hashmap in server
-					ConnectToClientThread clientThread = new ConnectToClientThread(socket);
-					ClientThreadManager.addClient(user.getQQNumber(), clientThread);
-					clientThread.start();
-					
+					if(!(socket.isClosed())){
+						ConnectToClientThread clientThread = new ConnectToClientThread(socket);
+						ClientThreadManager.addClient(user.getQQNumber(), clientThread);
+						clientThread.start();
+					}else{
+						System.out.println("Socket is close");
+					}
 				}else{
 					message.setMessageType("2");
 					objectOutputStream.writeObject(message);
 					socket.close();
 				}
-			}else{
-				bool = false;
+				//objectOutputStream.close();
 			}
 		}
 	}
