@@ -35,15 +35,23 @@ public class QQServer {
 				Message message = new Message();
 				MysqlConnector mysqlConnector = new MysqlConnector("root", "hxh896900488");
 				if(mysqlConnector.checkUser(user.getQQNumber(), user.getPassword())){
+					
 					message.setMessageType("1");
 					objectOutputStream.writeObject(message);
 					
 					//start a thread for a client request and add it into the hashmap in server
 					if(!(socket.isClosed())){
+						System.out.println("is close "+ socket.isClosed()+ " is connect " + socket.isConnected());
 						ConnectToClientThread clientThread = new ConnectToClientThread(socket);
+						if(socket.isClosed()){
+							System.out.println("socket is close in QQserver");
+						}
 						ClientThreadManager.addClient(user.getQQNumber(), clientThread);
 						clientThread.start();
-					}else{
+						System.out.println("111");
+						
+						System.out.println("socket is close in QQserver2" + socket.isClosed());
+						}else{
 						System.out.println("Socket is close");
 					}
 				}else{

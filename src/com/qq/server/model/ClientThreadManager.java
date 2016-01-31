@@ -11,6 +11,15 @@ public class ClientThreadManager {
 		return (ConnectToClientThread) map.get(user);
 		
 	}
+	//return the number of online-friends
+		public static String getOnlineFriends(){
+			Iterator iterator = map.keySet().iterator();
+			String onlineFriends=" ";
+			while(iterator.hasNext()){
+				onlineFriends += iterator.next().toString() + " ";
+			}
+			return onlineFriends;
+		}
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 

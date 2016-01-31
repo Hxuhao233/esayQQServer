@@ -8,6 +8,7 @@ import java.net.*;
 import java.util.PrimitiveIterator.OfDouble;
 
 import com.qq.common.Message;
+import com.qq.common.MessageType;
 
 import java.io.*;
 
@@ -25,12 +26,18 @@ public class ConnectToClientThread extends Thread{
 			
 			try {
 				//receive the message from the sender client
-				if(socket.isConnected()&&!(socket.isClosed())){
+				if(/*socket.isConnected()&&!(socket.isClosed())*/true){
+					if(socket.isClosed()){
+						System.out.println("socket is close in ConnectToClientThread");
+					}
 					ObjectInputStream objectInputStream =new ObjectInputStream(
 							socket.getInputStream());
 					//if(objectInputStream.read()!=-1){
 						Message message = (Message)objectInputStream.readObject();
-				//		if(!(message.getMessageType().equals("4"))){
+						if(message == null){
+							System.out.println("null message");
+						}
+					if(message.getMessageType().equals(MessageType.NormalMessage)){
 							System.out.println("From : " + message.getSenderName() + 
 																	"\nTo : " + message.getReceiverName() + 
 																	"\nContent : " + message.getMessage() + 
@@ -43,10 +50,23 @@ public class ConnectToClientThread extends Thread{
 							objectOutputStream.writeObject(message);
 							//objectInputStream.close();
 							//objectOutputStream.close();
-						}else{		
-							System.out.println("socket is close in ConnectToClientThread");
-						}
-					//}
+						
+					}else if(message.getMessageType().equals(MessageType.GetOnlineFriendsMessage)){
+						System.out.println("return online friends");
+						Message onlineFriendsMessage = new Message();
+						onlineFriendsMessage.setMessageType(MessageType.ReturnOnlineFriendsMessage);
+						onlineFriendsMessage.setMessage(ClientThreadManager.getOnlineFriends());
+						onlineFriendsMessage.setReceiverName(message.getSenderName());
+						ObjectOutputStream objectOutputStream1 = 
+								new ObjectOutputStream(socket.getOutputStream());
+						System.out.println("FRIEND " + onlineFriendsMessage.getMessage());
+						objectOutputStream1.writeObject(onlineFriendsMessage);
+						//objectOutputStream1.close();
+					}
+				}else{		
+						//System.out.println("socket is close in ConnectToClientThread");
+						//break;
+					}
 			//	}else{
 				//		bool = false;
 						//System.out.println("Thread stop");
@@ -56,7 +76,7 @@ public class ConnectToClientThread extends Thread{
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				break;
+				//break;
 				
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
